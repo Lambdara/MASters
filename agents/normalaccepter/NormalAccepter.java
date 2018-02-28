@@ -34,8 +34,8 @@ public class NormalAccepter extends Agent {
 
     ArrayList<Double> history;
 
-    int MINIMUM_HISTORY_LENGTH = 5;
-    int SAMPLE_SIZE = 10;
+    int MINIMUM_HISTORY_LENGTH = 10;
+    int MAX_SAMPLE_SIZE = 10000;
 
     Random random;
 
@@ -119,7 +119,14 @@ public class NormalAccepter extends Agent {
 
         double maximum = 0;
 
-        for (int i = 0; i < SAMPLE_SIZE; i++) {
+        double time = timeline.getTime();
+        int sample_size = (int) (history.size() * (1 - time) / time);
+        if (sample_size > MAX_SAMPLE_SIZE)
+            sample_size = MAX_SAMPLE_SIZE;
+        if (sample_size < 1)
+            sample_size = 1;
+        
+        for (int i = 0; i < sample_size; i++) {
             double example = random.nextGaussian() * sd + mean;
             if (example > maximum)
                 maximum = example;
