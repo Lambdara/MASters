@@ -3,7 +3,7 @@
  *  @author rafik		
  **/
 
-package agents;
+package masters.agents.optimalbidder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
