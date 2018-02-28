@@ -7,7 +7,7 @@
  * @author rafik		
  ************************************************************************************************************************************/
 
-package agents;
+package masters.agents.optimalbidder;
 
 import java.util.HashMap;
 
