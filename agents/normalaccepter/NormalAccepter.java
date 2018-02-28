@@ -22,6 +22,8 @@ import negotiator.issue.ValueInteger;
 import negotiator.issue.ValueReal;
 import negotiator.timeline.Timeline;
 
+/* NormalAccepter is a really cool agent which estimates bidding behavior by a
+   normal distribution and then uses that to estimate the highest bid to expect */
 public class NormalAccepter extends Agent {
     Bid optimalBid;
     double optimalUtility;
