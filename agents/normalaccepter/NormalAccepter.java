@@ -36,6 +36,7 @@ public class NormalAccepter extends Agent {
 
     int MINIMUM_HISTORY_LENGTH = 10;
     int MAX_SAMPLE_SIZE = 10000;
+    int SAMPLE_REPEATS = 25;
 
     Random random;
 
@@ -125,11 +126,15 @@ public class NormalAccepter extends Agent {
             sample_size = MAX_SAMPLE_SIZE;
         if (sample_size < 1)
             sample_size = 1;
-        
-        for (int i = 0; i < sample_size; i++) {
-            double example = random.nextGaussian() * sd + mean;
-            if (example > maximum)
-                maximum = example;
+
+        for (int i = 0; i < SAMPLE_REPEATS; i++) {
+            double tempMaximum = 0;
+            for (int j = 0; j < sample_size; j++) {
+                double example = random.nextGaussian() * sd + mean;
+                if (example > tempMaximum)
+                    tempMaximum = example;
+            }
+            maximum += tempMaximum / SAMPLE_REPEATS;
         }
 
         return maximum;
