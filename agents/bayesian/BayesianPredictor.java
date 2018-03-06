@@ -1,4 +1,7 @@
 import negotiator.Bid;
+import negotiator.issue.Issue;
+import negotiator.issue.IssueInteger;
+import negotiator.issue.IssueReal;
 import negotiator.issue.Value;
 import negotiator.issue.ValueInteger;
 import negotiator.issue.ValueReal;
@@ -19,19 +22,23 @@ import java.util.HashMap;
  * 	- All issues are conflict issues.
  */
 public class BayesianPredictor {
-	private Map<Integer, List<Integer>> hypothesesSpace;
-	private Map<Integer, Double> beliefs;
-	private Integer best;
+	List<Issue> issues;
+	Map<Integer, List<Issue>> hypothesesSpace;
+	Map<Integer, Double> beliefs;
+	Integer best;
+	boolean debug = true;
 	
 	/**
 	 * Initialize the bayesian predictor by calculating the hypotheses-space and set the beliefs.
 	 */
-	public BayesianPredictor(List<Integer> issues) {
-		this.hypothesesSpace = new HashMap<Integer, List<Integer>>();
+	public BayesianPredictor(List<Issue> issues) {
+		println("Initializing BayesianPredictor");
+		this.hypothesesSpace = new HashMap<Integer, List<Issue>>();
 		this.beliefs = new HashMap<Integer, Double>();
+		this.issues = issues;
 		this.best = 0;
 		
-		List<List<Integer>> permutations = generatePerm(issues);
+		List<List<Issue>> permutations = generatePerm(issues);
 		
 		for (int i = 0; i < permutations.size(); i++) {
 			this.hypothesesSpace.put(i, permutations.get(i));
@@ -46,11 +53,12 @@ public class BayesianPredictor {
 	 * 			The bid of the opponent.
 	 */
 	public void updateBeliefs(Bid bid) {
+		println("Updating beliefs");
 		Double highest = beliefs.get(best);
 		Double newBelief;
 		try {
 			for (Integer h : beliefs.keySet()) {
-				newBelief = beliefs.get(h)*calculateUtility(getWeights(hypothesesSpace.get(h)), bid);
+				newBelief = beliefs.get(h)*calculateUtilityOpponent(getWeights(hypothesesSpace.get(h)), bid);
 				beliefs.put(h, newBelief);
 				if(highest < beliefs.get(h)) {
 					best = h;
@@ -58,7 +66,9 @@ public class BayesianPredictor {
 			}
 		} catch (Exception e) {
 			System.out.println("Problem while updating bayesian beliefs:" + e.getMessage());
+			e.printStackTrace();
 		}
+		println("Best hypothesis : " + best);
 	}
 	
 	/**
@@ -69,8 +79,8 @@ public class BayesianPredictor {
 	 * @param ranking
 	 * @return weights
 	 */
-	private Map<Integer, Double> getWeights(List<Integer> ranking) {
-		HashMap<Integer, Double> weights = new HashMap<Integer, Double>();
+	private Map<Issue, Double> getWeights(List<Issue> ranking) {
+		HashMap<Issue, Double> weights = new HashMap<Issue, Double>();
 		for (int i = 0; i < ranking.size(); i++) {
 			weights.put(ranking.get(i), ((double) i)/(ranking.size()-1));
 		}
@@ -86,22 +96,32 @@ public class BayesianPredictor {
 	 * @throws Exception
 	 * 			If an issue in the bid is not of type Real or Integer, throw an exception.
 	 */
-	private Double calculateUtility(Map<Integer, Double> weights, Bid bid) throws Exception {
+	public Double calculateUtilityOpponent(Map<Issue, Double> weights, Bid bid) throws Exception {
+		println("Calculating utility of opponent...");
+		
 		double u = 0.0;
+		double max = 0.0;
 		HashMap<Integer, Value> values = bid.getValues();
-		for (int issue : weights.keySet()) {
-			switch (values.get(issue).getType()) {
+		println("Start loop over issues...");
+		for (Issue issue : weights.keySet()) {
+			switch (values.get(issue.getNumber()).getType()) {
 			case REAL:
+				println("REAL issue");
+				IssueReal issueReal = (IssueReal) issue;
 				ValueReal valReal = (ValueReal) values.get(issue);
-				u += weights.get(issue) * valReal.getValue();
+				max += weights.get(issue);
+				u += weights.get(issue) * normalize((issueReal.getUpperBound() - valReal.getValue()), issueReal.getUpperBound(), issueReal.getLowerBound());
 			case INTEGER:
+				println("INTEGER issue");
+				IssueInteger issueInt = (IssueInteger) issue;
 				ValueInteger valInt = (ValueInteger) values.get(issue);
-				u += weights.get(issue) * valInt.getValue();
+				max += weights.get(issue);
+				u += weights.get(issue) * normalize((issueInt.getUpperBound() - valInt.getValue()), issueInt.getUpperBound(), issueInt.getLowerBound());
 			default:
 				throw new Exception("value type " + values.get(issue).getType() + " not supported by BayesianPredictor");
 			}
 		}		
-		return u;
+		return normalize(u, max, 0.0);
 	}
 	
 	/**
@@ -131,15 +151,25 @@ public class BayesianPredictor {
 	}
 	
 	/**
-	 * Get the most likely preference of the opponent. A preference is 
+	 * Get the most likely preference of the opponent represented in weights per issue.
 	 * 
-	 * @return The preference of the opponent.
+	 * @return weightMap
 	 * 			A Map<Integer, Double>, the integer is the ID of an issue and 
 	 * 			the double is the opponents weight of that issue.
 	 */
-	public Map<Integer, Double> getPreference() {
+	public Map<Issue, Double> getPreferenceWeights() {
 		return getWeights(hypothesesSpace.get(best));
 	}
+	
+	/**
+	 * Get the most likely preference of the opponent represented as a ranking.
+	 * 
+	 * @return rankingList
+	 */
+	public List<Issue> getPreferenceRanking() {
+		return hypothesesSpace.get(best);
+	}
+	
 	
 	/**
 	 * Return unity-based normalized value.
@@ -161,5 +191,20 @@ public class BayesianPredictor {
 	 */
 	private double sq(double x) {
 		return x * x;
+	}
+	
+	/**
+	 * Convenient print procedure for tracing the process.
+	 */
+	void print(String s) {
+		System.out.print(s);
+	}
+	
+	/**
+	 * Convenient print procedure for tracing the process.
+	 */
+	void println(String s) {
+		if (debug)
+			System.out.println("############ " + s);
 	}
 }
