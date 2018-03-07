@@ -1,3 +1,5 @@
+package masters.agents.bayesian;
+
 import java.util.List;
 
 import negotiator.Agent;

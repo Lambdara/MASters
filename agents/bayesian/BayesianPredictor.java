@@ -1,3 +1,5 @@
+package masters.agents.bayesian;
+
 import negotiator.Bid;
 import negotiator.issue.Issue;
 import negotiator.issue.IssueInteger;
