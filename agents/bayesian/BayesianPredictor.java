@@ -81,8 +81,9 @@ public class BayesianPredictor {
 	 */
 	private Map<Issue, Double> getWeights(List<Issue> ranking) {
 		HashMap<Issue, Double> weights = new HashMap<Issue, Double>();
-		for (int i = 0; i < ranking.size(); i++) {
-			weights.put(ranking.get(i), ((double) i)/(ranking.size()-1));
+		int n = ranking.size();
+		for (int i = 0; i < n; i++) {
+			weights.put(ranking.get(i), 2 * ((double) i + 1)/(n * (n + 1)));
 		}
 		return weights;
 	}
@@ -103,22 +104,25 @@ public class BayesianPredictor {
 		double max = 0.0;
 		HashMap<Integer, Value> values = bid.getValues();
 		println("Start loop over issues...");
-		for (Issue issue : weights.keySet()) {
-			switch (values.get(issue.getNumber()).getType()) {
+		for (Issue issue : issues) {
+			switch (issue.getType()) {
 			case REAL:
 				println("REAL issue");
 				IssueReal issueReal = (IssueReal) issue;
-				ValueReal valReal = (ValueReal) values.get(issue);
+				ValueReal valReal = (ValueReal) values.get(issue.getNumber());
 				max += weights.get(issue);
 				u += weights.get(issue) * normalize((issueReal.getUpperBound() - valReal.getValue()), issueReal.getUpperBound(), issueReal.getLowerBound());
 			case INTEGER:
 				println("INTEGER issue");
 				IssueInteger issueInt = (IssueInteger) issue;
-				ValueInteger valInt = (ValueInteger) values.get(issue);
+				ValueInteger valInt = (ValueInteger) values.get(issue.getNumber());
+				println("ValueInt : "+valInt.getValue());
 				max += weights.get(issue);
-				u += weights.get(issue) * normalize((issueInt.getUpperBound() - valInt.getValue()), issueInt.getUpperBound(), issueInt.getLowerBound());
+				println("max:"+max);
+				u += weights.get(issue) * normalize(((double) issueInt.getUpperBound() - valInt.getValue()), (double) issueInt.getUpperBound(), (double) issueInt.getLowerBound());
+				println("u:" + u);
 			default:
-				throw new Exception("value type " + values.get(issue).getType() + " not supported by BayesianPredictor");
+				throw new Exception("issue type " + issue.getType()+ ", value type " + values.get(issue.getNumber()).getType() + " not supported by BayesianPredictor");
 			}
 		}		
 		return normalize(u, max, 0.0);
@@ -180,6 +184,7 @@ public class BayesianPredictor {
 	 * @return normalized val
 	 */
 	private double normalize(double val, double max, double min) {
+		println("Normalizing : " + val + ", " + max + ", " + min);
 		return (val - min) / (max - min);
 	}
 	

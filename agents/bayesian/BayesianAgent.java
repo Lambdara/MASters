@@ -23,6 +23,7 @@ import negotiator.utility.AdditiveUtilitySpace;
  */
 public class BayesianAgent extends ImprovedAgent {
 	BayesianPredictor predictor;
+	List<Issue> issues;
 	
 	Bid optimalBid;
 //	double optimalUtility;
@@ -48,6 +49,7 @@ public class BayesianAgent extends ImprovedAgent {
 			
 //			history = new ArrayList<Double>();
 			predictor = new BayesianPredictor(utilitySpace.getDomain().getIssues());
+			issues = utilitySpace.getDomain().getIssues();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -103,7 +105,7 @@ public class BayesianAgent extends ImprovedAgent {
 				// Initial offer will be an optimal bid.
 				action = (new Offer(getAgentID(), optimalBid));
 			} else if (actionOfOpponent instanceof Offer) {
-				if (time < 1 || time > 0.98) {
+				if (time < 1 && time > 0.98) {
 					println("End of negotiation is reached...");
 					// If the last turn is reached accept the offer.
 					action = new Accept(getAgentID(), lastBidOpponent);				
@@ -138,6 +140,7 @@ public class BayesianAgent extends ImprovedAgent {
 	 * @return bid
 	 */
 	private Bid getBid(Map<Issue, Double> preference) throws Exception {
+		println("Creating bid...");
 		Bid bid = new Bid(utilitySpace.getDomain(), lastBidOpponent.getValues());
 		Map<Issue, Double> weightRatio = getWeightRatio(preference);
 		List<Issue> rankedWeightRatio = orderIssues(weightRatio);		
@@ -145,18 +148,21 @@ public class BayesianAgent extends ImprovedAgent {
 		// TODO: Add target utility function to the agent.
 		double targetUtility = 0.9;
 		
-		
+		println("Initializing loop...");
 		HashMap<Integer, Value> values = bid.getValues();
 		Issue issue = rankedWeightRatio.get(0);
 		Value newValueObject;
 		Value value = values.get(issue.getNumber());
 		double newValue = getValue(value);
-		double max, min;
-		while(!(calculateUtility(bid) == targetUtility)) {
-			max = getUpperBound(issue);
-			min = getLowerBound(issue);
+		double max = getUpperBound(issue);
+		double min = getLowerBound(issue);
+		println("Starting loop...");
+		while(!(calculateUtility(bid) == targetUtility) && !(issue == null)) {
+			println("Updating newValue...");
 			newValue = newValue + (max - min)/100;
+			
 			if (newValue > max) {
+				println("Maximum value of issue is reached");
 				// Maximum value of issue is reached
 				newValue = max;
 				newValueObject = getNewValue(value, newValue);
@@ -164,10 +170,19 @@ public class BayesianAgent extends ImprovedAgent {
 				
 				// Setup new issue to increase
 				rankedWeightRatio.remove(0);
-				issue = rankedWeightRatio.get(0);
-				value = values.get(issue.getNumber());
-				newValue = getValue(value);
+				if (rankedWeightRatio.size() == 0) {
+					println("Iterated over all issues, no issue left to iterate over...");
+					issue = null;
+				} else {
+					println("Get new issue...");
+					issue = rankedWeightRatio.get(0);
+					value = values.get(issue.getNumber());
+					newValue = getValue(value);
+					max = getUpperBound(issue);
+					min = getLowerBound(issue);
+				}
 			} else {
+				println("NewValue : " + newValue);
 				newValueObject = getNewValue(value, newValue);
 				values.put(issue.getNumber(), newValueObject);
 			}
@@ -184,11 +199,15 @@ public class BayesianAgent extends ImprovedAgent {
 	 * @return weightRatioMap
 	 */
 	private Map<Issue, Double> getWeightRatio(Map<Issue, Double> preference) {
+		println("Get weight ratio list...");
 		AdditiveUtilitySpace additiveUtilitySpace = (AdditiveUtilitySpace) utilitySpace;
 		
 		HashMap<Issue, Double> weightRatio = new HashMap<Issue, Double>();
-		for (Issue issue : additiveUtilitySpace.getDomain().getIssues()) {
+		for (Issue issue : issues) {
+			println("AgentWeight : " + additiveUtilitySpace.getWeight(issue.getNumber()));
+			println("OpponentWeight : " + preference.get(issue));
 			double ratio = additiveUtilitySpace.getWeight(issue.getNumber()) / preference.get(issue);
+			println("Put "+issue.getName()+":"+ratio);
 			weightRatio.put(issue, ratio);
 		}
 		return weightRatio;
@@ -201,12 +220,16 @@ public class BayesianAgent extends ImprovedAgent {
 	 * @return
 	 */
 	private Issue getMax(Map<Issue, Double> map) {
+//		println("Get max issue");
 		Issue issue = null;
 		double highest = 0.0;
+		double v;
 		for (Map.Entry<Issue, Double> entry : map.entrySet()) {
+//			println("value : " + entry.getValue());
 			if (entry.getValue() > highest) {
 				issue = entry.getKey();
 				highest = entry.getValue();
+//				println("found new highest: " + highest);
 			}
 		}
 		return issue;
@@ -220,6 +243,7 @@ public class BayesianAgent extends ImprovedAgent {
 	 * 			List of Issues ordered on their value in the given map.
 	 */
 	private List<Issue> orderIssues(Map<Issue, Double> map) {
+		println("Order issues on weight ratio...");
 		ArrayList<Issue> orderedList = new ArrayList<Issue>();
 		Issue issue;
 		while (!(map.size() == 0)) {
