@@ -149,7 +149,6 @@ public class BayesianAgent extends ImprovedAgent {
 		// TODO: Add target utility function to the agent.
 		double targetUtility = 0.8;
 		
-		println("Initializing loop...");
 		HashMap<Integer, Value> values = bid.getValues();
 		Issue issue = rankedWeightRatio.get(0);
 		Value newValueObject;
@@ -157,9 +156,10 @@ public class BayesianAgent extends ImprovedAgent {
 		double newValue = getValue(value);
 		double max = getUpperBound(issue);
 		double min = getLowerBound(issue);
-		println("Starting loop...");
+		
+		println("Iterating over issues...");
+		println("Issue : " + issue.getName());
 		while(calculateUtility(bid) < targetUtility && !(issue == null)) {
-			println("Updating newValue...");
 			newValue = newValue + (max - min)/100;
 			
 			if (newValue > max) {
@@ -177,6 +177,7 @@ public class BayesianAgent extends ImprovedAgent {
 				} else {
 					println("Get new issue...");
 					issue = rankedWeightRatio.get(0);
+					println("Issue : " + issue.getName());
 					value = values.get(issue.getNumber());
 					newValue = getValue(value);
 					max = getUpperBound(issue);
