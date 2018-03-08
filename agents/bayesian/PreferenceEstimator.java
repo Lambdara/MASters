@@ -58,17 +58,13 @@ public abstract class PreferenceEstimator {
 	 * 			If an issue in the bid is not of type Real or Integer, throw an exception.
 	 */
 	public Double calculateUtilityOpponent(Map<Issue, Double> weights, Bid bid) throws Exception {
-		println("Calculating utility of opponent...");
-		
 		double u = 0.0;
 		double max = 0.0;
 		double v;
 		HashMap<Integer, Value> values = bid.getValues();
-		println("Start loop over issues...");
 		for (Issue issue : issues) {
 			switch (issue.getType()) {
 			case REAL:
-				println("REAL issue");
 				IssueReal issueReal = (IssueReal) issue;
 				ValueReal valReal = (ValueReal) values.get(issue.getNumber());
 				if (agentEvaluationAim.get(issue) == -1) {
@@ -78,9 +74,7 @@ public abstract class PreferenceEstimator {
 				}
 				max += weights.get(issue);
 				u += weights.get(issue) * normalize(v, issueReal.getUpperBound(), issueReal.getLowerBound());
-				println("utility : " + u);
 			case INTEGER:
-				println("INTEGER issue");
 				IssueInteger issueInt = (IssueInteger) issue;
 				ValueInteger valInt = (ValueInteger) values.get(issue.getNumber());
 				if (agentEvaluationAim.get(issue) == -1) {
@@ -90,7 +84,6 @@ public abstract class PreferenceEstimator {
 				}
 				max += weights.get(issue);
 				u += weights.get(issue) * normalize(v, (double) issueInt.getUpperBound(), (double) issueInt.getLowerBound());
-				println("utility : " + u);
 			default:
 				throw new Exception("issue type " + issue.getType()+ ", value type " + values.get(issue.getNumber()).getType() + " not supported by BayesianPredictor");
 			}

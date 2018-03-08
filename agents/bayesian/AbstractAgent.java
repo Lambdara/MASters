@@ -31,8 +31,13 @@ public abstract class AbstractAgent extends Agent {
 	Map<Issue, Integer> agentEvaluationAim;
 	boolean debug = true;
 	
+	/** 
+	 * Get the aim of the agent, whether it want to maximize/minimize the value of an issue.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	protected Map<Issue, Integer> getAgentEvaluationAim() throws Exception {
-		println("Retrieving evaluation aim per issue...");
 		HashMap<Issue, Integer> result = new HashMap<Issue, Integer>();
 		
 		Evaluator evaluator;
@@ -40,16 +45,13 @@ public abstract class AbstractAgent extends Agent {
 			evaluator = ((AdditiveUtilitySpace) utilitySpace).getEvaluator(issue.getNumber());
 			
 			if (evaluator instanceof EvaluatorInteger) {
-				println("INTEGER Evaluator");
 				EvaluatorInteger evaluatorInt = (EvaluatorInteger) evaluator;
-				println("Casted evaluator");
 				if (evaluatorInt.getUtilLowestValue() < evaluatorInt.getUtilHighestValue()) {
 					result.put(issue, 1);
 				} else {
 					result.put(issue, -1);
 				}
 			} else if (evaluator instanceof EvaluatorReal) {
-				println("REAL Evaluator");
 				EvaluatorReal evaluatorReal = (EvaluatorReal) evaluator;
 				if (evaluatorReal.getLowerBound() < evaluatorReal.getUpperBound()) {
 					result.put(issue, 1);
@@ -264,6 +266,12 @@ public abstract class AbstractAgent extends Agent {
 		return (val - min) / (max - min);
 	}
 	
+	void printPreference(Map<Issue, Double> preference) {
+		println("Estimated preference:");
+		for (Issue issue : preference.keySet()) {
+			println(issue.getName() + " : " + preference.get(issue));
+		}
+	}
 	
 	/**
 	 * Convenient print procedure for tracing the process.
