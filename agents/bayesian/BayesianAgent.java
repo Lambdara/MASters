@@ -23,17 +23,9 @@ import negotiator.utility.AdditiveUtilitySpace;
  * 
  * @author Mees
  */
-public class BayesianAgent extends ImprovedAgent {
-	BayesianPredictor predictor;
-	List<Issue> issues;
-	
-	Bid optimalBid;
+public class BayesianAgent extends AbstractAgent {
 //	double optimalUtility;
-	
-	Action actionOfOpponent = null;
-	Bid lastBidOpponent;
 //	double lastBidUtility;
-//	
 //	ArrayList<Double> history;
 	
 	/**
@@ -43,15 +35,16 @@ public class BayesianAgent extends ImprovedAgent {
 	public void init() {
 		println("Initializing Agent...");
 		try {
-			optimalBid = utilitySpace.getMaxUtilityBid();
+			optimalBid = utilitySpace.getMaxUtilityBid();			
 //			optimalUtility = getUtility(optimalBid);
 //			
 //			println("getUtility:" + utilitySpace.getUtility(optimalBid));
 //			println("calculateUtility:" + calculateUtility(optimalBid));
 			
 //			history = new ArrayList<Double>();
-			predictor = new BayesianPredictor(utilitySpace.getDomain().getIssues());
+			predictor = new BayesianPredictor(utilitySpace.getDomain().getIssues(), agentEvaluationAim);
 			issues = utilitySpace.getDomain().getIssues();
+			agentEvaluationAim = getAgentEvaluationAim();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -84,7 +77,7 @@ public class BayesianAgent extends ImprovedAgent {
 		if (actionOfOpponent instanceof Offer) {
 			println("Received Offer");
 			lastBidOpponent = ((Offer) actionOfOpponent).getBid();
-			predictor.updateBeliefs(lastBidOpponent);
+			predictor.updateModel(lastBidOpponent);
 		}
 //		lastBidUtility = utilitySpace.getUtility(lastBidOpponent);
 //		history.add(lastBidUtility);
@@ -155,19 +148,27 @@ public class BayesianAgent extends ImprovedAgent {
 		Issue issue = rankedWeightRatio.get(0);
 		Value newValueObject;
 		Value value = values.get(issue.getNumber());
-		double newValue = getValue(value);
+		double newValue = getValue(value, issue);
 		double max = getUpperBound(issue);
 		double min = getLowerBound(issue);
 		
 		println("Iterating over issues...");
 		println("Issue : " + issue.getName());
 		while(calculateUtility(bid) < targetUtility && !(issue == null)) {
-			newValue = newValue + (max - min)/100;
+			if (agentEvaluationAim.get(issue) == 1) {
+				newValue = newValue + (max - min)/100;
+			} else {
+				newValue = newValue - (max - min)/100;
+			}
 			
-			if (newValue > max) {
+			if ((newValue > max && agentEvaluationAim.get(issue) == 1) || (newValue < min && agentEvaluationAim.get(issue) == -1)) {
 				println("Maximum value of issue is reached");
 				// Maximum value of issue is reached
-				newValue = max;
+				if (agentEvaluationAim.get(issue) == 1) {
+					newValue = max;
+				} else {
+					newValue = min;
+				}
 				newValueObject = getNewValue(value, newValue);
 				values.put(issue.getNumber(), newValueObject);
 				
@@ -181,7 +182,7 @@ public class BayesianAgent extends ImprovedAgent {
 					issue = rankedWeightRatio.get(0);
 					println("Issue : " + issue.getName());
 					value = values.get(issue.getNumber());
-					newValue = getValue(value);
+					newValue = getValue(value, issue);
 					max = getUpperBound(issue);
 					min = getLowerBound(issue);
 				}

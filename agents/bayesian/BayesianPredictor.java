@@ -23,8 +23,7 @@ import java.util.HashMap;
  * 	- All issues are Real.
  * 	- All issues are conflict issues.
  */
-public class BayesianPredictor {
-	List<Issue> issues;
+public class BayesianPredictor extends PreferenceEstimator {
 	Map<Integer, List<Issue>> hypothesesSpace;
 	Map<Integer, Double> beliefs;
 	Integer best;
@@ -33,11 +32,11 @@ public class BayesianPredictor {
 	/**
 	 * Initialize the bayesian predictor by calculating the hypotheses-space and set the beliefs.
 	 */
-	public BayesianPredictor(List<Issue> issues) {
+	public BayesianPredictor(List<Issue> issues, Map<Issue, Integer> agentEvaluationAim) {
+		super(issues, agentEvaluationAim);
 		println("Initializing BayesianPredictor");
 		this.hypothesesSpace = new HashMap<Integer, List<Issue>>();
 		this.beliefs = new HashMap<Integer, Double>();
-		this.issues = issues;
 		this.best = 0;
 		
 		List<List<Issue>> permutations = generatePerm(issues);
@@ -54,7 +53,7 @@ public class BayesianPredictor {
 	 * @param bid
 	 * 			The bid of the opponent.
 	 */
-	public void updateBeliefs(Bid bid) {
+	public void updateModel(Bid bid) {
 		println("Updating beliefs");
 		Double highest = beliefs.get(best);
 		Double newBelief;
@@ -88,46 +87,6 @@ public class BayesianPredictor {
 			weights.put(ranking.get(i), 2 * ((double) i + 1)/(n * (n + 1)));
 		}
 		return weights;
-	}
-	
-	/**
-	 * Calculates the utility of the opponent given a bid and a weight distribution.
-	 * 
-	 * @param weights
-	 * @param bid
-	 * @return utility
-	 * @throws Exception
-	 * 			If an issue in the bid is not of type Real or Integer, throw an exception.
-	 */
-	public Double calculateUtilityOpponent(Map<Issue, Double> weights, Bid bid) throws Exception {
-		println("Calculating utility of opponent...");
-		
-		double u = 0.0;
-		double max = 0.0;
-		HashMap<Integer, Value> values = bid.getValues();
-		println("Start loop over issues...");
-		for (Issue issue : issues) {
-			switch (issue.getType()) {
-			case REAL:
-				println("REAL issue");
-				IssueReal issueReal = (IssueReal) issue;
-				ValueReal valReal = (ValueReal) values.get(issue.getNumber());
-				max += weights.get(issue);
-				u += weights.get(issue) * normalize((issueReal.getUpperBound() - valReal.getValue()), issueReal.getUpperBound(), issueReal.getLowerBound());
-			case INTEGER:
-				println("INTEGER issue");
-				IssueInteger issueInt = (IssueInteger) issue;
-				ValueInteger valInt = (ValueInteger) values.get(issue.getNumber());
-				println("ValueInt : "+valInt.getValue());
-				max += weights.get(issue);
-				println("max:"+max);
-				u += weights.get(issue) * normalize(((double) issueInt.getUpperBound() - valInt.getValue()), (double) issueInt.getUpperBound(), (double) issueInt.getLowerBound());
-				println("u:" + u);
-			default:
-				throw new Exception("issue type " + issue.getType()+ ", value type " + values.get(issue.getNumber()).getType() + " not supported by BayesianPredictor");
-			}
-		}		
-		return normalize(u, max, 0.0);
 	}
 	
 	/**
@@ -174,44 +133,5 @@ public class BayesianPredictor {
 	 */
 	public List<Issue> getPreferenceRanking() {
 		return hypothesesSpace.get(best);
-	}
-	
-	
-	/**
-	 * Return unity-based normalized value.
-	 *  
-	 * @param val
-	 * @param max
-	 * @param min
-	 * @return normalized val
-	 */
-	private double normalize(double val, double max, double min) {
-		println("Normalizing : " + val + ", " + max + ", " + min);
-		return (val - min) / (max - min);
-	}
-	
-	/**
-	 * Return the square a value.
-	 * 
-	 * @param x
-	 * @return
-	 */
-	private double sq(double x) {
-		return x * x;
-	}
-	
-	/**
-	 * Convenient print procedure for tracing the process.
-	 */
-	void print(String s) {
-		System.out.print(s);
-	}
-	
-	/**
-	 * Convenient print procedure for tracing the process.
-	 */
-	void println(String s) {
-		if (debug)
-			System.out.println("############ " + s);
 	}
 }
