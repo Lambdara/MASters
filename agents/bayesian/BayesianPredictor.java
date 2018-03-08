@@ -34,7 +34,6 @@ public class BayesianPredictor extends PreferenceEstimator {
 	 */
 	public BayesianPredictor(List<Issue> issues, Map<Issue, Integer> agentEvaluationAim) {
 		super(issues, agentEvaluationAim);
-		println("Initializing BayesianPredictor");
 		this.hypothesesSpace = new HashMap<Integer, List<Issue>>();
 		this.beliefs = new HashMap<Integer, Double>();
 		this.best = 0;
@@ -54,24 +53,23 @@ public class BayesianPredictor extends PreferenceEstimator {
 	 * 			The bid of the opponent.
 	 */
 	public void updateModel(Bid bid) {
-		println("Updating beliefs");
 		Double highest = (double) 0;
 		Double newBelief;
                 Double total = (double) 0;
 		try {
 			for (Integer h : beliefs.keySet()) {
 				newBelief = beliefs.get(h)*calculateUtilityOpponent(getWeights(hypothesesSpace.get(h)), bid);
-                                System.out.println("Belief " + h.toString() + " has chance " + newBelief.toString());
+				println("Belief " + h.toString() + " has chance " + newBelief.toString());
 				beliefs.put(h, newBelief);
-                                total += newBelief;
+				total += newBelief;
 				if(highest <= beliefs.get(h)) {
 					best = h;
-                                        highest = beliefs.get(h);
+					highest = beliefs.get(h);
 				}
 			}
-                        for (Integer h : beliefs.keySet()) {
-                                newBelief = beliefs.put(h, beliefs.get(h) / total);
-                        }
+			for (Integer h : beliefs.keySet()) {
+				newBelief = beliefs.put(h, beliefs.get(h) / total);
+			}
 		} catch (Exception e) {
 			System.out.println("Problem while updating bayesian beliefs:" + e.getMessage());
 			e.printStackTrace();

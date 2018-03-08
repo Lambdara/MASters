@@ -31,10 +31,10 @@ public class BayesianAgent extends AbstractAgent {
 	@Override
 	public void init() {
 		try {
-			optimalBid = utilitySpace.getMaxUtilityBid();			
-			predictor = new BayesianPredictor(utilitySpace.getDomain().getIssues(), agentEvaluationAim);
 			issues = utilitySpace.getDomain().getIssues();
+			optimalBid = utilitySpace.getMaxUtilityBid();
 			agentEvaluationAim = getAgentEvaluationAim();
+			predictor = new BayesianPredictor(utilitySpace.getDomain().getIssues(), agentEvaluationAim);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

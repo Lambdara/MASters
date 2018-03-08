@@ -62,9 +62,8 @@ public abstract class PreferenceEstimator {
 		double max = 0.0;
 		double v;
 		HashMap<Integer, Value> values = bid.getValues();
-		for (Issue issue : issues) {
-			switch (issue.getType()) {
-			case REAL:
+		for (Issue issue : bid.getIssues()) {
+			if (issue instanceof IssueReal) {
 				IssueReal issueReal = (IssueReal) issue;
 				ValueReal valReal = (ValueReal) values.get(issue.getNumber());
 				if (agentEvaluationAim.get(issue) == -1) {
@@ -74,7 +73,7 @@ public abstract class PreferenceEstimator {
 				}
 				max += weights.get(issue);
 				u += weights.get(issue) * normalize(v, issueReal.getUpperBound(), issueReal.getLowerBound());
-			case INTEGER:
+			} else if (issue instanceof IssueInteger) {
 				IssueInteger issueInt = (IssueInteger) issue;
 				ValueInteger valInt = (ValueInteger) values.get(issue.getNumber());
 				if (agentEvaluationAim.get(issue) == -1) {
@@ -84,10 +83,10 @@ public abstract class PreferenceEstimator {
 				}
 				max += weights.get(issue);
 				u += weights.get(issue) * normalize(v, (double) issueInt.getUpperBound(), (double) issueInt.getLowerBound());
-			default:
+			} else {
 				throw new Exception("issue type " + issue.getType()+ ", value type " + values.get(issue.getNumber()).getType() + " not supported by BayesianPredictor");
 			}
-		}		
+		}
 		return normalize(u, max, 0.0);
 	}
 	
