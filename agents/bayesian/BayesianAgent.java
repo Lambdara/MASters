@@ -15,6 +15,7 @@ import negotiator.actions.Offer;
 import negotiator.issue.Issue;
 import negotiator.issue.Value;
 import negotiator.utility.AdditiveUtilitySpace;
+import negotiator.timeline.Timeline;
 
 /**
  * BayesianAgent uses the bayesian rule to predict the preference of the opponent.
@@ -124,7 +125,7 @@ public class BayesianAgent extends AbstractAgent {
 		List<Issue> rankedWeightRatio = orderIssues(weightRatio);		
 		
 		// TODO: Add target utility function to the agent.
-		double targetUtility = 0.8;
+		double targetUtility = 1 - timeline.getTime();
 		
 		HashMap<Integer, Value> values = bid.getValues();
 		Issue issue = rankedWeightRatio.get(0);
