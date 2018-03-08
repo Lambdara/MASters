@@ -55,16 +55,18 @@ public class BayesianPredictor extends PreferenceEstimator {
 	 */
 	public void updateModel(Bid bid) {
 		println("Updating beliefs");
-		Double highest = beliefs.get(best);
+		Double highest = (double) 0;
 		Double newBelief;
                 Double total = (double) 0;
 		try {
 			for (Integer h : beliefs.keySet()) {
 				newBelief = beliefs.get(h)*calculateUtilityOpponent(getWeights(hypothesesSpace.get(h)), bid);
+                                System.out.println("Belief " + h.toString() + " has chance " + newBelief.toString());
 				beliefs.put(h, newBelief);
                                 total += newBelief;
-				if(highest < beliefs.get(h)) {
+				if(highest <= beliefs.get(h)) {
 					best = h;
+                                        highest = beliefs.get(h);
 				}
 			}
                         for (Integer h : beliefs.keySet()) {
