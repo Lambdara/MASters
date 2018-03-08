@@ -24,9 +24,6 @@ import negotiator.utility.AdditiveUtilitySpace;
  * @author Mees
  */
 public class BayesianAgent extends AbstractAgent {
-//	double optimalUtility;
-//	double lastBidUtility;
-//	ArrayList<Double> history;
 	
 	/**
 	 * init is called when a next session starts with the same opponent.
@@ -36,12 +33,6 @@ public class BayesianAgent extends AbstractAgent {
 		println("Initializing Agent...");
 		try {
 			optimalBid = utilitySpace.getMaxUtilityBid();			
-//			optimalUtility = getUtility(optimalBid);
-//			
-//			println("getUtility:" + utilitySpace.getUtility(optimalBid));
-//			println("calculateUtility:" + calculateUtility(optimalBid));
-			
-//			history = new ArrayList<Double>();
 			predictor = new BayesianPredictor(utilitySpace.getDomain().getIssues(), agentEvaluationAim);
 			issues = utilitySpace.getDomain().getIssues();
 			agentEvaluationAim = getAgentEvaluationAim();
@@ -79,8 +70,6 @@ public class BayesianAgent extends AbstractAgent {
 			lastBidOpponent = ((Offer) actionOfOpponent).getBid();
 			predictor.updateModel(lastBidOpponent);
 		}
-//		lastBidUtility = utilitySpace.getUtility(lastBidOpponent);
-//		history.add(lastBidUtility);
 	}
 	
 	/**
