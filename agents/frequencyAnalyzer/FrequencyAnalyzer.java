@@ -1,5 +1,7 @@
 package masters.agents.frequencyAnalyzer;
 
+import masters.agents.bayesian.*;
+
 import java.util.*;
 import java.lang.Math;
 
