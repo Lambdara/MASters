@@ -58,7 +58,7 @@ public class BayesianAgent extends AbstractAgent {
 	 */
 	@Override
 	public String getName() {
-		return "BoulwareBayes";
+		return "BayesianAgent";
 	}
 	
 	/**
