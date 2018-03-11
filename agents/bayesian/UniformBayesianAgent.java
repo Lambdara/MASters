@@ -59,7 +59,7 @@ public class UniformBayesianAgent extends AbstractAgent {
      */
     @Override
     public String getName() {
-        return "Bayesian Agent";
+        return "Uniform Bayesian Agent By MASters";
     }
 	
     /**
