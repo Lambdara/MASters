@@ -153,15 +153,18 @@ public class AgentFrequencyBoulware extends AbstractAgent {
         Map<Integer, Double> sds = new HashMap<Integer, Double>();
         for(Integer issueNumber : issueValues.keySet()){
             double sd = calculateSD(issueNumber);
-            System.out.println("sd of issue " + getIssueInPartnerBid(issueNumber) + ": " + sd);
+            System.out.println("standard deviation of issue " + getIssueInPartnerBid(issueNumber) + ": " + sd);
             sds.put(issueNumber, sd);
         }
         //Determines the order of the ratios
         ArrayList<Integer> issuesRanking = sortByValue(sds);
-        System.out.println(issuesRanking.stream().map(i -> getIssueInPartnerBid(i)).collect(Collectors.toList()));
+        System.out.println("Calculated preference of opponent: " + issuesRanking.stream().map(i -> getIssueInPartnerBid(i)).collect(Collectors.toList()));
         Map<Integer, Double> opponentWeights = getWeights(issuesRanking);
+        System.out.println("opp weights: " + opponentWeights);
         Map<Integer, Double> ratios = calculateRatios(opponentWeights);
         Map<Integer, Double> sortedRatios = sortedRatios(ratios);
+        System.out.println("sorted ratios: " + sortedRatios);
+
 
 
         double currentUtility = 0;
@@ -202,6 +205,7 @@ public class AgentFrequencyBoulware extends AbstractAgent {
         bestUtility = getUtility(utilitySpace.getMaxUtilityBid());
         worstUtility = getUtility(utilitySpace.getMinUtilityBid());
         double targetUtility = bestUtility - (bestUtility - worstUtility) * Math.pow(timeline.getTime(),4);
+        System.out.println("Current target utility: " + targetUtility);
         return targetUtility;
 
     }

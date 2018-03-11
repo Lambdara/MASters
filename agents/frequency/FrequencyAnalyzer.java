@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class FrequencyAnalyzer extends AbstractAgent {
     Bid optimalBid;
@@ -151,10 +152,12 @@ public class FrequencyAnalyzer extends AbstractAgent {
         Map<Integer, Double> sds = new HashMap<Integer, Double>();
         for(Integer issueNumber : issueValues.keySet()){
             double sd = calculateSD(issueNumber);
+            System.out.println("standard deviation of issue " + getIssueInPartnerBid(issueNumber) + ": " + sd);
             sds.put(issueNumber, sd);
         }
         //Determines the order of the ratios
         ArrayList<Integer> issuesRanking = sortByValue(sds);
+        System.out.println("Calculated preference of opponent: " + issuesRanking.stream().map(i -> getIssueInPartnerBid(i)).collect(Collectors.toList()));
         Map<Integer, Double> opponentWeights = getWeights(issuesRanking);
         Map<Integer, Double> ratios = calculateRatios(opponentWeights);
         Map<Integer, Double> sortedRatios = sortedRatios(ratios);
@@ -198,7 +201,6 @@ public class FrequencyAnalyzer extends AbstractAgent {
         worstUtility = getUtility(utilitySpace.getMinUtilityBid());
         double targetUtility = bestUtility - (bestUtility - worstUtility) * Math.pow(timeline.getTime(),4);
         return targetUtility;
-
     }
 
     //Calculates the ratio between your own weights and the opponent weights
