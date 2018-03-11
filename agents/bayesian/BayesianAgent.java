@@ -21,11 +21,13 @@ import negotiator.timeline.Timeline;
  * BayesianAgent uses the bayesian rule to predict the preference of the opponent.
  * This prediction is in turn used to create a counter-offer. An accepting strategy is required
  * to be able to create a counter-offer. The accepting strategy of NormalAccepter is used for this.
- * 
- * @author Mees
+ *
+ * @author MASters
  */
 public class BayesianAgent extends AbstractAgent {
-	
+
+        double bestUtility, worstUtility;
+
 	/**
 	 * init is called when a next session starts with the same opponent.
 	 */
@@ -36,7 +38,9 @@ public class BayesianAgent extends AbstractAgent {
 			optimalBid = utilitySpace.getMaxUtilityBid();
 			agentEvaluationAim = getAgentEvaluationAim();
 			predictor = new BayesianPredictor(utilitySpace.getDomain().getIssues(), agentEvaluationAim);
-		} catch (Exception e) {
+                        bestUtility = getUtility(utilitySpace.getMaxUtilityBid());
+                        worstUtility = getUtility(utilitySpace.getMinUtilityBid());
+                } catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -54,7 +58,7 @@ public class BayesianAgent extends AbstractAgent {
 	 */
 	@Override
 	public String getName() {
-		return "Bayesian Agent";
+		return "BayesianAgent";
 	}
 	
 	/**
@@ -125,8 +129,8 @@ public class BayesianAgent extends AbstractAgent {
 		List<Issue> rankedWeightRatio = orderIssues(weightRatio);		
 		
 		// TODO: Add target utility function to the agent.
-		double targetUtility = 1 - timeline.getTime();
-		
+		double targetUtility = bestUtility - (bestUtility - worstUtility) * Math.pow(timeline.getTime(),4);
+
 		HashMap<Integer, Value> values = bid.getValues();
 		Issue issue = rankedWeightRatio.get(0);
 		Value newValueObject;
