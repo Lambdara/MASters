@@ -24,7 +24,7 @@ import negotiator.timeline.Timeline;
  *
  * @author MASters
  */
-public class NormalLimitedMemoryBayesianAgent extends AbstractAgent {
+public class NormalBayesianAgent extends AbstractAgent {
 
     double bestUtility, worstUtility;
     int offerAmount = 0;
@@ -32,7 +32,6 @@ public class NormalLimitedMemoryBayesianAgent extends AbstractAgent {
     ArrayList<Double> history;
 
     int MINIMUM_HISTORY_LENGTH = 10;
-    int MAXIMUM_HISTORY_SIZE = 25;
     int MAX_SAMPLE_SIZE = 10000;
     int SAMPLE_REPEATS = 25;
 
@@ -70,7 +69,7 @@ public class NormalLimitedMemoryBayesianAgent extends AbstractAgent {
      */
     @Override
     public String getName() {
-        return "Normal Limited Memory Bayesian Agent By MASters";
+        return "Normal Bayesian Agent By MASters";
     }
 	
     /**
@@ -84,8 +83,6 @@ public class NormalLimitedMemoryBayesianAgent extends AbstractAgent {
             lastBidOpponent = ((Offer) actionOfOpponent).getBid();
             predictor.updateModel(lastBidOpponent);
             history.add(getUtility(lastBidOpponent));
-            if (history.size() > MAXIMUM_HISTORY_SIZE)
-                history.remove(0);
         }
     }
 	
