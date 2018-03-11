@@ -87,7 +87,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Updates the hashmap where all the values of the issues are stored during the negotiation
-    public void addToIssueValues(Bid bid){
+    private void addToIssueValues(Bid bid){
         for(Issue issue : bid.getIssues()){
             int issueNumber = issue.getNumber();
             Value value = null;
@@ -136,7 +136,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Returns the issue from the last bid done by the opponent
-    public Issue getIssueInPartnerBid(int issueNumber){
+    private Issue getIssueInPartnerBid(int issueNumber){
         for(int i = 0; i < lastPartnerBid.getIssues().size(); i++){
             if(lastPartnerBid.getIssues().get(i).getNumber() == issueNumber){
                 return lastPartnerBid.getIssues().get(i);
@@ -146,7 +146,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Creates a bid
-    public Bid createBid() throws Exception {
+    private Bid createBid() throws Exception {
         //Determines the standard deviations
         Map<Integer, Double> sds = new HashMap<Integer, Double>();
         for(Integer issueNumber : issueValues.keySet()){
@@ -192,8 +192,13 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Determines the target utility, this can vary
-    private double getTargetUtil(){
-        return 1 - timeline.getTime();
+    private double getTargetUtil() throws Exception{
+        double bestUtility, worstUtility;
+        bestUtility = getUtility(utilitySpace.getMaxUtilityBid());
+        worstUtility = getUtility(utilitySpace.getMinUtilityBid());
+        double targetUtility = bestUtility - (bestUtility - worstUtility) * Math.pow(timeline.getTime(),4);
+        return targetUtility;
+
     }
 
     //Calculates the ratio between your own weights and the opponent weights
@@ -209,7 +214,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Calculates the utility for a bid
-    public double calculateUtility(Bid bid) throws Exception {
+    private double calculateUtility(Bid bid) throws Exception {
         HashMap<Integer, Value> values = bid.getValues();
 
         double u = 0.0;
@@ -237,7 +242,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Sorts the ratios of the weights, starting with the largest ratio
-    public Map<Integer, Double> sortedRatios(Map<Integer, Double> ratios){
+    private Map<Integer, Double> sortedRatios(Map<Integer, Double> ratios){
         Map<Integer, Double> sortedRatios = new HashMap<Integer, Double>();
 
         for(int i = 0; i < ratios.size(); i++){
@@ -255,7 +260,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Sorts the standard deviation, starting with the smallest
-    public ArrayList<Integer> sortByValue(Map<Integer, Double> sds){
+    private ArrayList<Integer> sortByValue(Map<Integer, Double> sds){
         ArrayList<Integer> sortedArray = new ArrayList<Integer>();
 
         for(int i = 0; i < sds.size(); i++){
@@ -273,7 +278,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Calculates the standard deviation over all values of a certain issue that has been offered
-    public double calculateSD(Integer issueNumber) throws Exception {
+    private double calculateSD(Integer issueNumber) throws Exception {
         ArrayList<Value> values = issueValues.get(issueNumber);
         ArrayList<Double> normalizedValues = new ArrayList<Double>();
         Issue issue = getIssueInPartnerBid(issueNumber);

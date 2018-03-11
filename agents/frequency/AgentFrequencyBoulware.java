@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class AgentFrequencyBoulware extends AbstractAgent {
     Bid optimalBid;
@@ -87,7 +89,7 @@ public class AgentFrequencyBoulware extends AbstractAgent {
     }
 
     //Updates the hashmap where all the values of the issues are stored during the negotiation
-    public void addToIssueValues(Bid bid){
+    private void addToIssueValues(Bid bid){
         for(Issue issue : bid.getIssues()){
             int issueNumber = issue.getNumber();
             Value value = null;
@@ -136,7 +138,7 @@ public class AgentFrequencyBoulware extends AbstractAgent {
     }
 
     //Returns the issue from the last bid done by the opponent
-    public Issue getIssueInPartnerBid(int issueNumber){
+    private Issue getIssueInPartnerBid(int issueNumber){
         for(int i = 0; i < lastPartnerBid.getIssues().size(); i++){
             if(lastPartnerBid.getIssues().get(i).getNumber() == issueNumber){
                 return lastPartnerBid.getIssues().get(i);
@@ -151,13 +153,16 @@ public class AgentFrequencyBoulware extends AbstractAgent {
         Map<Integer, Double> sds = new HashMap<Integer, Double>();
         for(Integer issueNumber : issueValues.keySet()){
             double sd = calculateSD(issueNumber);
+            System.out.println("sd of issue " + getIssueInPartnerBid(issueNumber) + ": " + sd);
             sds.put(issueNumber, sd);
         }
         //Determines the order of the ratios
         ArrayList<Integer> issuesRanking = sortByValue(sds);
+        System.out.println(issuesRanking.stream().map(i -> getIssueInPartnerBid(i)).collect(Collectors.toList()));
         Map<Integer, Double> opponentWeights = getWeights(issuesRanking);
         Map<Integer, Double> ratios = calculateRatios(opponentWeights);
         Map<Integer, Double> sortedRatios = sortedRatios(ratios);
+
 
         double currentUtility = 0;
         Bid bid = new Bid(utilitySpace.getDomain(), lastPartnerBid.getValues());
@@ -242,7 +247,7 @@ public class AgentFrequencyBoulware extends AbstractAgent {
     }
 
     //Sorts the ratios of the weights, starting with the largest ratio
-    public Map<Integer, Double> sortedRatios(Map<Integer, Double> ratios){
+    private Map<Integer, Double> sortedRatios(Map<Integer, Double> ratios){
         Map<Integer, Double> sortedRatios = new HashMap<Integer, Double>();
 
         for(int i = 0; i < ratios.size(); i++){
@@ -260,7 +265,7 @@ public class AgentFrequencyBoulware extends AbstractAgent {
     }
 
     //Sorts the standard deviation, starting with the smallest
-    public ArrayList<Integer> sortByValue(Map<Integer, Double> sds){
+    private ArrayList<Integer> sortByValue(Map<Integer, Double> sds){
         ArrayList<Integer> sortedArray = new ArrayList<Integer>();
 
         for(int i = 0; i < sds.size(); i++){
@@ -278,7 +283,7 @@ public class AgentFrequencyBoulware extends AbstractAgent {
     }
 
     //Calculates the standard deviation over all values of a certain issue that has been offered
-    public double calculateSD(Integer issueNumber) throws Exception {
+    private double calculateSD(Integer issueNumber) throws Exception {
         ArrayList<Value> values = issueValues.get(issueNumber);
         ArrayList<Double> normalizedValues = new ArrayList<Double>();
         Issue issue = getIssueInPartnerBid(issueNumber);
