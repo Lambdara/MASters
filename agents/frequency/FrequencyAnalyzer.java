@@ -183,7 +183,6 @@ public class FrequencyAnalyzer extends AbstractAgent {
                 end = (int)issueInteger.getLowerBound();
             }
             //Adjusts the value of the issue step by step, until the target utility is reached
-            //TODO
             for(int i = start; agentEvaluationAim.get(issue) == 1 ? i <= end : i >= end ; i += step){
                 Value value = new ValueInteger(i);
                 values.put(issueNumber, value);
