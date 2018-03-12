@@ -23,7 +23,7 @@ import negotiator.issue.ValueReal;
  */
 public abstract class PreferenceEstimator {
 	List<Issue> issues;
-	Map<Issue, Integer> agentEvaluationAim;
+	public Map<Issue, Integer> agentEvaluationAim;
 	boolean debug = true;
 	
 	/**
