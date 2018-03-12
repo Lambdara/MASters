@@ -162,7 +162,7 @@ public class AgentFrequencyBoulware extends AbstractAgent {
         Map<Integer, Double> opponentWeights = getWeights(issuesRanking);
         System.out.println("opp weights: " + opponentWeights);
         Map<Integer, Double> ratios = calculateRatios(opponentWeights);
-        Map<Integer, Double> sortedRatios = sortedRatios(ratios);
+        ArrayList<Pair<Integer, Double>> sortedRatios = sortedRatios(ratios);
         System.out.println("sorted ratios: " + sortedRatios);
 
 
@@ -171,8 +171,9 @@ public class AgentFrequencyBoulware extends AbstractAgent {
         Bid bid = new Bid(utilitySpace.getDomain(), lastPartnerBid.getValues());
         HashMap<Integer, Value> values = bid.getValues();
         //Loops through all the issues and adjusts the value of the issue one by one, until the target utility is reached
-        for(Integer issueNumber : sortedRatios.keySet()){
-            Issue issue = getIssueInPartnerBid(issueNumber);
+        for(Pair pair : sortedRatios){
+            Issue issue = getIssueInPartnerBid((Integer)pair.getKey());
+            Integer issueNumber = issue.getNumber();
             IssueInteger issueInteger = (IssueInteger) issue;
             int step, start = (int)getValue(lastPartnerBid.getValue(issueNumber), issue), end;
             if(agentEvaluationAim.get(issue) == 1){
@@ -183,7 +184,8 @@ public class AgentFrequencyBoulware extends AbstractAgent {
                 end = (int)issueInteger.getLowerBound();
             }
             //Adjusts the value of the issue step by step, until the target utility is reached
-            for(int i = start; i <= end; i += step){
+            //TODO
+            for(int i = start; agentEvaluationAim.get(issue) == 1 ? i <= end : end >= i ; i += step){
                 Value value = new ValueInteger(i);
                 values.put(issueNumber, value);
                 bid = new Bid(utilitySpace.getDomain(), values);
@@ -251,32 +253,33 @@ public class AgentFrequencyBoulware extends AbstractAgent {
     }
 
     //Sorts the ratios of the weights, starting with the largest ratio
-    private Map<Integer, Double> sortedRatios(Map<Integer, Double> ratios){
-        Map<Integer, Double> sortedRatios = new HashMap<Integer, Double>();
+    private ArrayList<Pair<Integer, Double>> sortedRatios(Map<Integer, Double> ratios){
+        ArrayList<Pair<Integer, Double>> sortedRatios = new ArrayList<Pair<Integer, Double>>();
 
-        for(int i = 0; i < ratios.size(); i++){
+        for(int i = 0; i < ratios.size(); i++) {
             Integer maxIssue = null;
             double maxRatio = Double.MIN_VALUE;
-            for(Integer issueNumber: ratios.keySet()){
-                if(!sortedRatios.containsKey(issueNumber) && ratios.get(issueNumber) > maxRatio){
+            for (Integer issueNumber : ratios.keySet()) {
+                Pair<Integer, Double> pair = new Pair<Integer, Double>(issueNumber, ratios.get(issueNumber));
+                if (!sortedRatios.contains(pair) && ratios.get(issueNumber) > maxRatio) {
                     maxIssue = issueNumber;
                     maxRatio = ratios.get(issueNumber);
                 }
             }
-            sortedRatios.put(maxIssue, maxRatio);
+            sortedRatios.add(new Pair<Integer, Double>(maxIssue, maxRatio));
         }
         return sortedRatios;
     }
 
-    //Sorts the standard deviation, starting with the smallest
+    //Sorts the issuenumbers, looking at the standard deviation, starting with the largest
     private ArrayList<Integer> sortByValue(Map<Integer, Double> sds){
         ArrayList<Integer> sortedArray = new ArrayList<Integer>();
 
         for(int i = 0; i < sds.size(); i++){
-            Integer minIssue = null;
-            double minSd = Double.MAX_VALUE;
+            Integer minIssue = 0;
+            double minSd = 0;
             for(Integer issueNumber: sds.keySet()){
-                if(!sortedArray.contains(issueNumber) && sds.get(issueNumber) < minSd){
+                if(!sortedArray.contains(issueNumber) && sds.get(issueNumber) >= minSd){
                     minIssue = issueNumber;
                     minSd = sds.get(issueNumber);
                 }

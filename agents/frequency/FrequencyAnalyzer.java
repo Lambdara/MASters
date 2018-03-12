@@ -74,7 +74,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
 
     @Override
     public String getName() {
-        return "FrequencyAnalyzer by MASters";
+        return "AgentFrequencyBoulware";
     }
 
     @Override
@@ -147,7 +147,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Creates a bid
-    private Bid createBid() throws Exception {
+    public Bid createBid() throws Exception {
         //Determines the standard deviations
         Map<Integer, Double> sds = new HashMap<Integer, Double>();
         for(Integer issueNumber : issueValues.keySet()){
@@ -159,15 +159,20 @@ public class FrequencyAnalyzer extends AbstractAgent {
         ArrayList<Integer> issuesRanking = sortByValue(sds);
         System.out.println("Calculated preference of opponent: " + issuesRanking.stream().map(i -> getIssueInPartnerBid(i)).collect(Collectors.toList()));
         Map<Integer, Double> opponentWeights = getWeights(issuesRanking);
+        System.out.println("opp weights: " + opponentWeights);
         Map<Integer, Double> ratios = calculateRatios(opponentWeights);
-        Map<Integer, Double> sortedRatios = sortedRatios(ratios);
+        ArrayList<Pair<Integer, Double>> sortedRatios = sortedRatios(ratios);
+        System.out.println("sorted ratios: " + sortedRatios);
+
+
 
         double currentUtility = 0;
         Bid bid = new Bid(utilitySpace.getDomain(), lastPartnerBid.getValues());
         HashMap<Integer, Value> values = bid.getValues();
         //Loops through all the issues and adjusts the value of the issue one by one, until the target utility is reached
-        for(Integer issueNumber : sortedRatios.keySet()){
-            Issue issue = getIssueInPartnerBid(issueNumber);
+        for(Pair pair : sortedRatios){
+            Issue issue = getIssueInPartnerBid((Integer)pair.getKey());
+            Integer issueNumber = issue.getNumber();
             IssueInteger issueInteger = (IssueInteger) issue;
             int step, start = (int)getValue(lastPartnerBid.getValue(issueNumber), issue), end;
             if(agentEvaluationAim.get(issue) == 1){
@@ -200,7 +205,9 @@ public class FrequencyAnalyzer extends AbstractAgent {
         bestUtility = getUtility(utilitySpace.getMaxUtilityBid());
         worstUtility = getUtility(utilitySpace.getMinUtilityBid());
         double targetUtility = bestUtility - (bestUtility - worstUtility) * Math.pow(timeline.getTime(),4);
+        System.out.println("Current target utility: " + targetUtility);
         return targetUtility;
+
     }
 
     //Calculates the ratio between your own weights and the opponent weights
@@ -216,7 +223,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Calculates the utility for a bid
-    private double calculateUtility(Bid bid) throws Exception {
+    public double calculateUtility(Bid bid) throws Exception {
         HashMap<Integer, Value> values = bid.getValues();
 
         double u = 0.0;
@@ -244,32 +251,33 @@ public class FrequencyAnalyzer extends AbstractAgent {
     }
 
     //Sorts the ratios of the weights, starting with the largest ratio
-    private Map<Integer, Double> sortedRatios(Map<Integer, Double> ratios){
-        Map<Integer, Double> sortedRatios = new HashMap<Integer, Double>();
+    private ArrayList<Pair<Integer, Double>> sortedRatios(Map<Integer, Double> ratios){
+        ArrayList<Pair<Integer, Double>> sortedRatios = new ArrayList<Pair<Integer, Double>>();
 
-        for(int i = 0; i < ratios.size(); i++){
+        for(int i = 0; i < ratios.size(); i++) {
             Integer maxIssue = null;
             double maxRatio = Double.MIN_VALUE;
-            for(Integer issueNumber: ratios.keySet()){
-                if(!sortedRatios.containsKey(issueNumber) && ratios.get(issueNumber) > maxRatio){
+            for (Integer issueNumber : ratios.keySet()) {
+                Pair<Integer, Double> pair = new Pair<Integer, Double>(issueNumber, ratios.get(issueNumber));
+                if (!sortedRatios.contains(pair) && ratios.get(issueNumber) > maxRatio) {
                     maxIssue = issueNumber;
                     maxRatio = ratios.get(issueNumber);
                 }
             }
-            sortedRatios.put(maxIssue, maxRatio);
+            sortedRatios.add(new Pair<Integer, Double>(maxIssue, maxRatio));
         }
         return sortedRatios;
     }
 
-    //Sorts the standard deviation, starting with the smallest
+    //Sorts the issuenumbers, looking at the standard deviation, starting with the largest
     private ArrayList<Integer> sortByValue(Map<Integer, Double> sds){
         ArrayList<Integer> sortedArray = new ArrayList<Integer>();
 
         for(int i = 0; i < sds.size(); i++){
-            Integer minIssue = null;
-            double minSd = Double.MAX_VALUE;
+            Integer minIssue = 0;
+            double minSd = 0;
             for(Integer issueNumber: sds.keySet()){
-                if(!sortedArray.contains(issueNumber) && sds.get(issueNumber) < minSd){
+                if(!sortedArray.contains(issueNumber) && sds.get(issueNumber) >= minSd){
                     minIssue = issueNumber;
                     minSd = sds.get(issueNumber);
                 }
