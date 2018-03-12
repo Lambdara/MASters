@@ -164,7 +164,7 @@ public class FrequencyAnalyzer extends AbstractAgent {
         ArrayList<Pair<Integer, Double>> sortedRatios = sortedRatios(ratios);
         System.out.println("sorted ratios: " + sortedRatios);
 
-
+        System.out.println("Current target utility: " + getTargetUtil());
 
         double currentUtility = 0;
         Bid bid = new Bid(utilitySpace.getDomain(), lastPartnerBid.getValues());
@@ -183,7 +183,8 @@ public class FrequencyAnalyzer extends AbstractAgent {
                 end = (int)issueInteger.getLowerBound();
             }
             //Adjusts the value of the issue step by step, until the target utility is reached
-            for(int i = start; i <= end; i += step){
+            //TODO
+            for(int i = start; agentEvaluationAim.get(issue) == 1 ? i <= end : i >= end ; i += step){
                 Value value = new ValueInteger(i);
                 values.put(issueNumber, value);
                 bid = new Bid(utilitySpace.getDomain(), values);
@@ -205,7 +206,6 @@ public class FrequencyAnalyzer extends AbstractAgent {
         bestUtility = getUtility(utilitySpace.getMaxUtilityBid());
         worstUtility = getUtility(utilitySpace.getMinUtilityBid());
         double targetUtility = bestUtility - (bestUtility - worstUtility) * Math.pow(timeline.getTime(),4);
-        System.out.println("Current target utility: " + targetUtility);
         return targetUtility;
 
     }
