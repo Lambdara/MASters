@@ -44,26 +44,47 @@
 		\framesubtitle{Optimal Stopping}
 		Our initial subject was 'Optimal Stopping'.
 
-		\begin{block}{Problem 1}
-		The original paper assumes you know how many turns are left. The agent is tested against agents which are not designed around this information and as such we don't want to use it. We estimate the remaining turns using knowledge about the time spent and remaining instead.
+		\begin{block}{Optimal Stopping}
+		Optimal Stopping focuses on the sub-problem of when to accept
 		\end{block}
+
+		\begin{block}{Problem 1}
+		Turn-based
+		% The original paper assumes you know how many turns are left. The agent is tested against agents which are not designed around this information and as such we don't want to use it. We estimate the remaining turns using knowledge about the time spent and remaining instead.
+		\end{block}		
 		
 		\begin{block}{Problem 2}
-		The behavior depends significantly on the model of your opponent.
-		We implemented one model which assumes the incoming utilities are uniform on the whole domain.
-		We implemented another model which assumes the incoming utilities are normally distributed, the mean and standard deviation are measured using incoming offers.
+		Modeling the opponent		
+		% The behavior depends significantly on the model of your opponent.
+		% We implemented one model which assumes the incoming utilities are uniform on the whole domain.
+		%We implemented another model which assumes the incoming utilities are normally distributed, the mean and standard deviation are measured using incoming offers.
 		\end{block}
 	}
 	\frame{
 		\frametitle{Our Project}
 		\framesubtitle{Bayesian Agent}
 		\begin{block}{Motivation}
-		Our initial idea was to make this agent more interesting by adding bidding behavior, whereas the original agent just waits for offers until it accepts or time runs out.
+		% Our initial idea was to make this agent more interesting by adding bidding behavior, whereas the original agent just waits for offers until it accepts or time runs out.
+		Build on optimal stopping by adding bidding behavior		
 		\end{block}
 		
 		\begin{block}{Bayesian agent}
-		One paper described an agent which tries to estimate its opponents preferences. Given this information one can create an offer that, given a certain utility for yourself, is as good as you can make it for the other, motivating them to accept.
-		We modified the algorithm to work in our context.
+		Update beliefs about opponent's weights using the Bayesian rule under some assumptions:
+		\begin{itemize}
+		\item Conflict issues
+		\item Offers represent true preferences
+		\item Only use integer issues
+		\end{itemize}
+		Create counter-offers based on these beliefs
+		% Explain how
+		\end{block}
+	}
+	\frame{
+		\frametitle{Our Project}
+		\framesubtitle{SD Analyzer}
+		\begin{block}{Idea}
+		% Our initial idea was to make this agent more interesting by adding bidding behavior, whereas the original agent just waits for offers until it accepts or time runs out.
+		Update beliefs based on how much issues vary instead of their precise value		
 		\end{block}
 	}
 	\frame{
@@ -76,7 +97,10 @@
 		\begin{block}{NormalAccepter}
 		NormalAccepter uses optimal stopping, assuming the opponent will make normally distributed offers like those observed so far.
 		\end{block}
-		
+	}
+	\frame{
+		\frametitle{Our Project}
+		\framesubtitle{Our Agents - part 2}
 		\begin{block}{Bayesian}
 		Bayesian uses preference estimation with target utility like Boulware.
 		\end{block}
@@ -84,5 +108,15 @@
 		\begin{block}{UniformBayesian and NormalBayesian}
 		UniformBayesian and NormalBayesian are the same as Bayesian, except their target utilities are determined by the same algorithm that UniformAccepter and NormalAccepter respectively use.
 		\end{block}
+	}
+	\frame{
+		\frametitle{Our Project}
+		\framesubtitle{Our Agents - part 3}
+		\begin{block}{SDAnalyzer}
+		Use variation instead of the actual value to estimate opponents preferences
+		\end{block}
+	}
+	\frame{
+		\frametitle{Demo}
 	}
 \end{document}
