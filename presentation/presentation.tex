@@ -62,33 +62,15 @@
 	}
 	\frame{
 		\frametitle{Our Project}
-		\framesubtitle{Bayesian Agent}
+		\framesubtitle{Motivation}
 		\begin{block}{Motivation}
 		% Our initial idea was to make this agent more interesting by adding bidding behavior, whereas the original agent just waits for offers until it accepts or time runs out.
 		Build on optimal stopping by adding bidding behavior		
 		\end{block}
-		
-		\begin{block}{Bayesian agent}
-		Update beliefs about opponent's weights using the Bayesian rule under some assumptions:
-		\begin{itemize}
-		\item Conflict issues
-		\item Offers represent true preferences
-		\item Only use integer issues
-		\end{itemize}
-		Create counter-offers based on these beliefs
-		% Explain how
-		\end{block}
 	}
 	\frame{
 		\frametitle{Our Project}
-		\framesubtitle{SD Analyzer}
-		\begin{block}{Idea}
-		% Our initial idea was to make this agent more interesting by adding bidding behavior, whereas the original agent just waits for offers until it accepts or time runs out.	
-		\end{block}
-	}
-	\frame{
-		\frametitle{Our Project}
-		\framesubtitle{Our Agents}
+		\framesubtitle{Our Agents - part 1}
 		\begin{block}{UniformAccepter}
 		UniformAccepter uses optimal stopping, assuming the opponent makes uniform offers on the whole domain.
 		\end{block}
@@ -100,21 +82,39 @@
 	\frame{
 		\frametitle{Our Project}
 		\framesubtitle{Our Agents - part 2}
-		\begin{block}{Bayesian}
-		Bayesian uses preference estimation with target utility like Boulware.
+		\begin{block}{Bayesian agent}
+		Update beliefs about opponent's weights using the Bayesian rule under some assumptions:
+		\begin{itemize}
+		\item Conflict issues
+		\item Offers represent true preferences
+		\item Only use integer issues
+		\end{itemize}
+		Create counter-offers based on these beliefs
+		% Explain how
 		\end{block}
 		
-		\begin{block}{UniformBayesian and NormalBayesian}
-		UniformBayesian and NormalBayesian are the same as Bayesian, except their target utilities are determined by the same algorithm that UniformAccepter and NormalAccepter respectively use.
+		\begin{block}{3 types}
+		\begin{itemize}
+		\item Boulware Bayesian
+		\item Normal Bayesian
+		\item Uniform Bayesian
+		\end{itemize}
+		%UniformBayesian and NormalBayesian are the same as Bayesian, except their target utilities are determined by the same algorithm that UniformAccepter and NormalAccepter respectively use.
 		\end{block}
+		
 	}
 	\frame{
 		\frametitle{Our Project}
 		\framesubtitle{Our Agents - part 3}
-		\begin{block}{SDAnalyzer}
-		Use variation instead of the actual value to estimate opponents preferences, with Boulwarez
+		\begin{block}{SD Analyzer Agent}
+		\begin{itemize}
+		\item Update opponent's preferences using standard deviation.
+		\item Create counter-offers based on these preferences
+		\item Uses boulware.
+		\end{itemize}		
 		\end{block}
 	}
+	
 	\frame{
 		\frametitle{Demo}
 	}
