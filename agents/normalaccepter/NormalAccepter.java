@@ -102,7 +102,7 @@ public class NormalAccepter extends Agent {
     }
 
     public double getExpectedMaximum() {
-        if (history.size() < MINIMUM_HISTORY_LENGTH)
+        if (timeline.getTime() < 0.5)
             return optimalUtility;
 
         double mean = 0;

@@ -268,7 +268,7 @@ public class NormalBayesianAgent extends AbstractAgent {
         return normalize(u, max, 0.0);
     }
     public double getExpectedMaximum() {
-        if (history.size() < MINIMUM_HISTORY_LENGTH)
+        if (timeline.getTime() < 0.5)
             return bestUtility;
 
         double mean = 0;

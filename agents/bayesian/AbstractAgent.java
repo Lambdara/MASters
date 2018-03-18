@@ -22,13 +22,13 @@ import negotiator.utility.AdditiveUtilitySpace;
 
 public abstract class AbstractAgent extends Agent {
 	PreferenceEstimator predictor;
-	List<Issue> issues;
+	public List<Issue> issues;
 	
 	Action actionOfOpponent = null;
 	Bid lastBidOpponent;
 	Bid optimalBid;
 	
-	Map<Issue, Integer> agentEvaluationAim;
+	public Map<Issue, Integer> agentEvaluationAim;
 	boolean debug = true;
 	
 	/** 
